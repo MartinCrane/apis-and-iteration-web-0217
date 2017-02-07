@@ -3,23 +3,36 @@ require 'json'
 require 'pry'
 
 def get_character_movies_from_api(character)
-  #make the web request
+  
   all_characters = RestClient.get('http://www.swapi.co/api/people/')
   character_hash = JSON.parse(all_characters)
-  
-  # iterate over the character hash to find the collection of `films` for the given
-  #   `character`
-  # collect those film API urls, make a web request to each URL to get the info
-  #  for that film
-  # return value of this method should be collection of info about each film.
-  #  i.e. an array of hashes in which each hash reps a given film
-  # this collection will be the argument given to `parse_character_movies`
-  #  and that method will do some nice presentation stuff: puts out a list
-  #  of movies by title. play around with puts out other info about a given film.
+  films = []
+  character_hash["results"].each do |character_info|
+    if character_info["name"] == character
+      films = character_info["films"]
+      break
+    else
+
+    end
+    
+  end
+  films
 end
 
-def parse_character_movies(films_hash)
-  # some iteration magic and puts out the movies in a nice list
+def movie_title_extract(url_info)
+  movie_title = RestClient.get(url_info)
+  movie_title = JSON.parse(movie_title)
+  movie_title["title"]
+end  
+
+def parse_character_movies(films_array)
+  formatted_films = films_array.map do |film_url|
+    movie_title_extract(film_url)
+  end
+
+  formatted_films.each_with_index do |value, index|
+    puts (index + 1).to_s + ". " + value
+  end
 end
 
 def show_character_movies(character)
@@ -27,7 +40,10 @@ def show_character_movies(character)
   parse_character_movies(films_hash)
 end
 
+
 ## BONUS
 
 # that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
 # can you split it up into helper methods?
+
+# movie_title_extract("http://swapi.co/api/films/7/")
