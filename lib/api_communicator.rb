@@ -2,30 +2,62 @@ require 'rest-client'
 require 'json'
 require 'pry'
 
-def get_character_movies_from_api(character)
-  #make the web request
-  all_characters = RestClient.get('http://www.swapi.co/api/people/')
-  character_hash = JSON.parse(all_characters)
-  
-  # iterate over the character hash to find the collection of `films` for the given
-  #   `character`
-  # collect those film API urls, make a web request to each URL to get the info
-  #  for that film
-  # return value of this method should be collection of info about each film.
-  #  i.e. an array of hashes in which each hash reps a given film
-  # this collection will be the argument given to `parse_character_movies`
-  #  and that method will do some nice presentation stuff: puts out a list
-  #  of movies by title. play around with puts out other info about a given film.
+
+
+#request and parse hash
+def get_character_movies_from_api
+  #all films for all characters
+  request = RestClient.get('http://www.swapi.co/api/people/')
+  request_parsed = JSON.parse(request)
+  all_character_movies_hash = request_parsed["results"]
 end
 
-def parse_character_movies(films_hash)
-  # some iteration magic and puts out the movies in a nice list
+
+
+#get the films of the character
+def get_film_urls(character, all_character_movies_hash)
+  character_hash = all_character_movies_hash.find do |hashes|
+    hashes["name"].downcase == character
+  end
+  if character_hash != nil
+    character_hash["films"]
+  end
 end
 
-def show_character_movies(character)
-  films_hash = get_character_movies_from_api(character)
-  parse_character_movies(films_hash)
+# HELPER OF film_titles convert url to title
+def movie_title_extract(film_url)
+
+  movie_title = RestClient.get(film_url)
+  movie_title = JSON.parse(movie_title)
+  movie_title["title"]
+
 end
+
+#get film titles of character
+def film_titles(film_urls)
+  film_titles = film_urls.map do |film_url|
+    movie_title_extract(film_url)
+  end
+
+end
+
+#format the films of the character
+def format_titles(film_titles)
+  list_count = 0
+  formatted_films = film_titles.map do |title|
+    list_count +=1
+    "#{list_count} #{title}"
+  end
+end
+
+def url_to_formatted(film_urls)
+  film_titles= film_titles(film_urls)
+  puts format_titles(film_titles)
+end
+
+
+
+
 
 ## BONUS
 
