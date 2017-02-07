@@ -12,6 +12,7 @@ while !name_existence_test(character)
 end
 
 runner(character)
+
 # film_urls = get_film_urls(character)
 # while film_urls == nil
 # 	puts "character doesnt exist"
